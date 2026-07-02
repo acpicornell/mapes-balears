@@ -1,5 +1,5 @@
-.PHONY: help explore extract lookups subsets ibestat all \
-        relief density possessions llogarets crossibestat spikes poblacio balears maps clean
+.PHONY: help explore extract lookups subsets ibestat kontur ghsl osmhydro worldcover torrents all \
+        relief density possessions llogarets crossibestat spikes poblacio balears hydro maps clean
 
 help:
 	@echo "NGIB — available targets:"
@@ -11,6 +11,8 @@ help:
 	@echo "  make ibestat     Download municipal population (IBESTAT eDatos)"
 	@echo "  make kontur      Download Kontur 400m population (for 3D spikes)"
 	@echo "  make ghsl        Download GHS-POP 3 arcsec ~90m population (for relief map)"
+	@echo "  make osmhydro    Download OSM torrent network of Mallorca (Geofabrik)"
+	@echo "  make worldcover  Download ESA WorldCover 2021 land cover of Mallorca"
 	@echo "  make all         extract + lookups + subsets + ibestat"
 	@echo "  -- maps (nix develop .#r) --"
 	@echo "  make density     Toponym density (hexbin)"
@@ -21,6 +23,8 @@ help:
 	@echo "  make spikes      3D population spike map (warm, Milos style)"
 	@echo "  make poblacio    Blue 3D relief of Mallorca + population as yellow points"
 	@echo "  make balears     Population relief triptych of all the Balearic Islands"
+	@echo "  make torrents    Derive the complete torrent network from the DEM (WhiteboxTools D8)"
+	@echo "  make hydro       Water & land-cover map of Mallorca (torrents + wetlands + vegetation)"
 	@echo "  make maps        all maps"
 	@echo "  make clean       Delete data/ and out/"
 
@@ -44,6 +48,12 @@ kontur:
 
 ghsl:
 	bash scripts/07_download_ghsl.sh
+
+osmhydro:
+	bash scripts/08_download_hydro.sh
+
+worldcover:
+	bash scripts/09_download_worldcover.sh
 
 all: extract lookups subsets ibestat
 
@@ -74,7 +84,13 @@ poblacio: ghsl
 balears: ghsl
 	Rscript R/62_population_relief_balears.R
 
-maps: density relief possessions classify llogarets crossibestat spikes poblacio balears
+torrents:
+	Rscript R/71_derive_torrents.R
+
+hydro: worldcover torrents
+	Rscript R/70_hydro_mallorca.R
+
+maps: density relief possessions classify llogarets crossibestat spikes poblacio balears hydro
 
 clean:
 	rm -rf data/raw data/processed out

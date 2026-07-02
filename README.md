@@ -52,6 +52,8 @@ scripts/
   05_ngib_subsets.sh        possessions/llogarets/nuclis -> GeoPackages
   06_download_kontur.sh     Kontur 400m population -> data/external/kontur_ES.gpkg
   07_download_ghsl.sh       GHS-POP 3 arcsec ~90m population -> data/external/ghsl_{mallorca,balears}.tif
+  08_download_hydro.sh      OSM torrent network (Geofabrik) -> data/external/mallorca_torrents.gpkg
+  09_download_worldcover.sh ESA WorldCover 2021 land cover -> data/external/mallorca_worldcover.tif
 R/
   00_packages.R           package check
   10_relief_mallorca.R    2D hillshade relief + peaks (headless-safe)
@@ -63,6 +65,9 @@ R/
   50_join_ibestat.R       NGIB × IBESTAT: choropleth + scatter by municipality
   60_population_spikes.R   3D population spike map (Kontur, warm)
   61_population_relief.R   blue 3D relief of Mallorca + GHS-POP population as yellow points
+  62_population_relief_balears.R  population relief triptych of all the Balearic Islands
+  70_hydro_mallorca.R      water & land-cover map of Mallorca (torrents + wetlands over WorldCover + relief)
+  71_derive_torrents.R     complete torrent network from the DEM (WhiteboxTools D8) -> mallorca_torrents_dem.gpkg
 data/
   raw/pages/              raw GeoJSON pages
   raw/lookups/            code tables (Valor_*, Font...)

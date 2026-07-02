@@ -59,6 +59,7 @@
           r = pkgs.mkShell {
             buildInputs = dataTools ++ [
               rEnv pkgs.pandoc pkgs.dejavu_fonts pkgs.fontconfig
+              pkgs.whitebox-tools   # D8 flow routing -> complete torrent network
             ];
             # fontconfig so magick/ggplot can find fonts (titles)
             FONTCONFIG_FILE = pkgs.makeFontsConf {
