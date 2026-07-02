@@ -45,13 +45,16 @@ cims <- llocs |>
 cims_xy <- cims |> st_coordinates() |> as.data.frame() |> bind_cols(GRAFIA = cims$GRAFIA)
 
 # --- 5. Plot estilo Milos ---------------------------------------------------
-pal <- met.brewer("OKeeffe2", n = 20, direction = -1)
+# Tintes hipsométricos: verde tierras bajas -> marrón/blanco cimas.
+pal <- colorRampPalette(c("#3b7d54", "#8fae5d", "#e8d99a",
+                          "#c99a5b", "#8c5a3b", "#f5f0e6"))(64)
 
 p <- ggplot() +
   geom_raster(data = dem_df, aes(x, y, fill = elev)) +
-  geom_raster(data = hs_df, aes(x, y, alpha = hs), fill = "grey15") +
-  scale_fill_gradientn(colours = pal, name = "Altitud (m)") +
-  scale_alpha(range = c(0, 0.65), guide = "none") +
+  geom_raster(data = hs_df, aes(x, y, alpha = hs), fill = "grey10") +
+  scale_fill_gradientn(colours = pal, name = "Altitud (m)",
+                       trans = "sqrt") +
+  scale_alpha(range = c(0, 0.45), guide = "none") +
   coord_sf(crs = 25831, expand = FALSE) +
   labs(title = "MALLORCA", subtitle = "Relieve y topónimos · NGIB / IDEIB",
        caption = "Datos: NGIB (ICGIB) · MDE: AWS Terrain vía elevatr") +
