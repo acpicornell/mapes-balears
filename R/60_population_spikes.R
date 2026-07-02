@@ -39,7 +39,8 @@ r_pop[is.na(r_pop) & !is.na(r_land)] <- 0
 mat <- raster_to_matrix(r_pop)
 
 # --- 4. Paleta cálida (clar = poca població, fosc = molta) — fidel a Milos ---
-pal <- c("#f6e8b0", "#eccb56", "#e0972f", "#c4632a", "#8a3520", "#3a1508")
+# tono base más oscuro (oro/tostado) para que la costa contraste con el fondo clar
+pal <- c("#e6bf55", "#d99a34", "#c4632a", "#9c3f1e", "#6a2814", "#2e1006")
 texture <- grDevices::colorRampPalette(pal)(256)
 
 # --- 5. Escena 3D + pathtracing (marc apaïsat, norte arriba: theta = 0) ------
@@ -48,12 +49,16 @@ mat |>
   height_shade(texture = texture) |>
   plot_3d(heightmap = mat, solid = FALSE, soliddepth = 0, zscale = 20,
           shadowdepth = 0, shadow_darkness = 0.6, windowsize = c(1400, 1050),
-          phi = 68, zoom = 0.66, theta = 0, background = "#ecebe6")
+          phi = 68, zoom = 0.66, theta = 0, background = "#e7e4dd")
 
+# Luz rasante (clave desde el NO, sombra proyectada al SE, como el mapa DE) +
+# luz de relleno suave. La sombra cae sobre el plano de tierra -> volumen.
 render_highquality(
   filename = "out/_render.png", preview = FALSE,
-  light = TRUE, lightdirection = 225, lightaltitude = 65, lightintensity = 720,
-  interactive = FALSE, width = 1600, height = 1200, samples = 300
+  light = TRUE,
+  lightdirection = c(315, 120), lightaltitude = c(38, 70),
+  lightintensity = c(700, 300), lightcolor = c("#fff3dd", "#ffffff"),
+  interactive = FALSE, width = 1600, height = 1200, samples = 320
 )
 cat("render OK, componiendo títulos y leyenda...\n")
 
