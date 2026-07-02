@@ -1,0 +1,23 @@
+# Datos descargados (reproducibles vía scripts) — no versionar los pesados
+data/raw/
+data/processed/
+data/external/
+out/
+*.gpkg
+*.tif
+*.png
+*.geojson.tmp
+
+# Nix / direnv
+.direnv/
+result
+result-*
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# temporales
+*.tmp
+*.log
