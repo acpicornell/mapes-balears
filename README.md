@@ -48,11 +48,16 @@ scripts/
   01_explore_api.sh       metadatos + esquema + conteo
   02_download_ngib.sh     descarga paginada -> data/processed/ngib_llocs.{gpkg,geojson,csv}
   03_download_lookups.sh  tablas de códigos -> data/raw/lookups/*.csv
+  04_ibestat_population.sh  población municipal IBESTAT (eDatos) + catálogo
+  05_ngib_subsets.sh        possessions/llogarets/nuclis -> GeoPackages
 R/
   00_packages.R           check de paquetes
   10_relief_mallorca.R    relieve sombreado 2D + cimas (headless-safe)
   20_toponym_density.R    densidad de topónimos (hexbin)
   30_rayshader_3d.R       relieve 3D rayshader (estilo Milos, necesita OpenGL)
+  40_possessions.R        retrato nocturno de las 16.031 possessions
+  41_llogarets.R          los 160 llogarets etiquetados
+  50_join_ibestat.R       NGIB × IBESTAT: coropleta + scatter por municipio
 data/
   raw/pages/              páginas GeoJSON crudas
   raw/lookups/            tablas de códigos (Valor_*, Font...)
@@ -73,6 +78,17 @@ curl -s "$B/0/query" --data-urlencode "where=1=1" \
 ```
 
 También sirve `ogr2ogr` directo sobre el driver ESRIJSON del endpoint.
+
+## Estudios monográficos
+
+Cruce NGIB × IBESTAT a nivel municipal (ver `docs/ESTUDIS.md`):
+- **Les possessions** (`TIPUS_LOCAL 3014`, 16.031 fincas/possessions) — retrato
+  nocturno + coropleta de densidad. El Pla de Mallorca concentra la mayor
+  densidad (Costitx 905/100 km², Montuïri, Sineu, Algaida).
+- **Els llogarets** (`TIPUS_LOCAL 3011`, 160 núcleos menores) — mapa etiquetado.
+
+Fuentes de datos y esquemas: `docs/API.md` (NGIB), `docs/IBESTAT.md` (IBESTAT
+eDatos), `docs/MILOS.md` (técnicas cartográficas).
 
 ## Licencia de los datos
 

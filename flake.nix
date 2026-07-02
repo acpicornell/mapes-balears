@@ -27,6 +27,8 @@
           tidyverse       # incluye ggplot2, dplyr, readr, tidyr...
           hexbin          # stat_bin_hex (mapa de densidad)
           ragg            # backend PNG de alta calidad
+          jsonlite        # parseo de la API JSON de IBESTAT
+          ggrepel         # etiquetas sin solapamiento
           rayshader
           elevatr
           giscoR
