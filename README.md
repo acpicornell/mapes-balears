@@ -55,7 +55,8 @@ R/
   10_relief_mallorca.R    relieve sombreado 2D + cimas (headless-safe)
   20_toponym_density.R    densidad de topónimos (hexbin)
   30_rayshader_3d.R       relieve 3D rayshader (estilo Milos, necesita OpenGL)
-  40_possessions.R        retrato nocturno de las 16.031 possessions
+  40_possessions.R        retrato nocturno de las 16.031 edificaciones rurales
+  42_finques_classif.R    subclasifica 3014 en possessió/casa/caseta (small multiples)
   41_llogarets.R          los 160 llogarets etiquetados
   50_join_ibestat.R       NGIB × IBESTAT: coropleta + scatter por municipio
 data/
@@ -82,9 +83,11 @@ También sirve `ogr2ogr` directo sobre el driver ESRIJSON del endpoint.
 ## Estudios monográficos
 
 Cruce NGIB × IBESTAT a nivel municipal (ver `docs/ESTUDIS.md`):
-- **Les possessions** (`TIPUS_LOCAL 3014`, 16.031 fincas/possessions) — retrato
-  nocturno + coropleta de densidad. El Pla de Mallorca concentra la mayor
-  densidad (Costitx 905/100 km², Montuïri, Sineu, Algaida).
+- **Les possessions** (`TIPUS_LOCAL 3014`) — ⚠️ el código agrupa 16.031
+  *edificaciones rurales* (finca/possessió/casa/caseta); subclasificadas por
+  morfología del topónimo, las possessions *stricto sensu* (Son/Rafal/Alqueria)
+  son ~**3.068** (2.011 en Mallorca). Ver `R/42_finques_classif.R`. El Pla de
+  Mallorca concentra la mayor densidad de edificación rural.
 - **Els llogarets** (`TIPUS_LOCAL 3011`, 160 núcleos menores) — mapa etiquetado.
 
 Fuentes de datos y esquemas: `docs/API.md` (NGIB), `docs/IBESTAT.md` (IBESTAT

@@ -45,13 +45,16 @@ density:
 possessions:
 	Rscript R/40_possessions.R
 
+classify:
+	Rscript R/42_finques_classif.R
+
 llogarets:
 	Rscript R/41_llogarets.R
 
 crossibestat:
 	Rscript R/50_join_ibestat.R
 
-maps: density relief possessions llogarets crossibestat
+maps: density relief possessions classify llogarets crossibestat
 
 clean:
 	rm -rf data/raw data/processed out

@@ -7,9 +7,30 @@ límites GISCO. Reproducible: `make all && make possessions llogarets crossibest
 
 ## 1. Les possessions de Mallorca (i Balears)
 
-`TIPUS_LOCAL 3014` — *"Finca, possessió, lloc, casa pagesa, caseta"*.
-**16.031 possessions** en el NGIB (16.011 caen dentro de un municipio al hacer
-el join espacial). Población de referencia (IBESTAT 2025): 1.237.480 hab.
+⚠️ **Matiz importante.** El `TIPUS_LOCAL 3014` no son "16.031 possessions": es un
+código que **agrupa** *"Finca, possessió, lloc, casa pagesa, caseta"*. El NGIB no
+las separa por campo (`TIPUS_SUPERLOCAL` solo desagrega ~1.264: sobre todo 1.012
+*"Llocs"*, el término menorquín de possessió). Por eso subclasificamos por
+**morfología del topónimo** (`R/42_finques_classif.R`), que es como se estudian
+las possessions mallorquinas:
+
+| categoría | criterio (nombre) | nº (Balears) |
+|-----------|-------------------|-------------:|
+| **Possessió** | Son, So n', Son na, Sa n', Rafal, Alqueria, Beni-, o "Llocs" (Menorca) | **3.068** |
+| Casa (Can/Cas) | Can, Ca'n, Ca na, Ca s', Cas (cases pageses) | 9.423 |
+| Caseta/Barraca | construccions menors | 799 |
+| Altre | es/sa/ses/s' + topònim, etc. | 2.741 |
+
+Es decir, **possessions *stricto sensu* ≈ 3.000** (2.011 en Mallorca), no 16.031.
+El mapa `out/possessions_classif_mallorca.png` (small multiples) lo hace evidente:
+las possessions se concentran en el **Pla** y el **Migjorn**; las cases "Can…"
+son mayoría y se pegan más a los pueblos.
+
+Los análisis municipales de abajo usan el conjunto completo (16.031 *edificacions
+rurals*) como proxy de huella rural; para un estudio estricto de possessions,
+filtrar `CATEGORIA = 'Possessió'` en `data/processed/ngib_finques.gpkg`.
+
+Población de referencia (IBESTAT 2025): 1.237.480 hab.
 
 Mapas:
 - `out/possessions_mallorca.png` — retrato nocturno de las ~12.000 possessions de
