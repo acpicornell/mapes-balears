@@ -59,6 +59,7 @@ R/
   42_finques_classif.R    subclasifica 3014 en possessió/casa/caseta (small multiples)
   41_llogarets.R          los 160 llogarets etiquetados
   50_join_ibestat.R       NGIB × IBESTAT: coropleta + scatter por municipio
+  60_population_spikes.R   mapa 3D de spikes de población (Kontur, estilo Egipto)
 data/
   raw/pages/              páginas GeoJSON crudas
   raw/lookups/            tablas de códigos (Valor_*, Font...)

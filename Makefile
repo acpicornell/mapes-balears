@@ -9,6 +9,7 @@ help:
 	@echo "  make lookups     Descarga las tablas de códigos NGIB"
 	@echo "  make subsets     Extrae possessions/llogarets/nuclis a GeoPackages"
 	@echo "  make ibestat     Descarga población municipal (IBESTAT eDatos)"
+	@echo "  make kontur      Descarga población Kontur 400m (para spikes 3D)"
 	@echo "  make all         extract + lookups + subsets + ibestat"
 	@echo "  -- mapas (nix develop .#r) --"
 	@echo "  make density     Densidad de topónimos (hexbin)"
@@ -16,6 +17,7 @@ help:
 	@echo "  make possessions Retrato nocturno de las 16.031 possessions"
 	@echo "  make llogarets   Los 160 llogarets etiquetados"
 	@echo "  make crossibestat  Coropleta possessions/100km² + scatter (NGIB×IBESTAT)"
+	@echo "  make spikes      Mapa 3D de spikes de población (estilo Milos/Egipto)"
 	@echo "  make maps        todos los mapas"
 	@echo "  make clean       Borra data/ y out/"
 
@@ -33,6 +35,9 @@ subsets:
 
 ibestat:
 	bash scripts/04_ibestat_population.sh
+
+kontur:
+	bash scripts/06_download_kontur.sh
 
 all: extract lookups subsets ibestat
 
@@ -54,7 +59,10 @@ llogarets:
 crossibestat:
 	Rscript R/50_join_ibestat.R
 
-maps: density relief possessions classify llogarets crossibestat
+spikes: kontur
+	Rscript R/60_population_spikes.R
+
+maps: density relief possessions classify llogarets crossibestat spikes
 
 clean:
 	rm -rf data/raw data/processed out

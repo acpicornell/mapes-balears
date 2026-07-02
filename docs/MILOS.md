@@ -63,6 +63,22 @@ Los 55.696 topónimos son ideales para:
    geográficos, construcciones) coloreando por `TIPUS_INSPIRE`.
 4. **Densidad de hidrónimos** (torrents, fonts) cruzando con la red HydroSHEDS.
 
+### Mapa de spikes de población (el de Egipto/Alemania)
+
+`R/60_population_spikes.R` replica el mapa 3D icónico de Milos
+([making-crisp-spike-maps-with-r](https://github.com/milos-agathon/making-crisp-spike-maps-with-r)):
+- Datos: **Kontur Population 2023** (hexágonos H3 de 400 m; derivado de censo/padró
+  + GHSL). Descarga: `scripts/06_download_kontur.sh` (~22 MB para España).
+- Rasterizar población → `height_shade(texture)` → `plot_3d()` → `render_highquality()`.
+- Paleta de Milos: `#0b1354 · #283680 · #6853a9 · #c863b3`.
+- **Headless sin GPU**: `options(rgl.useNULL = TRUE)` + `rayrender` (pathtracing CPU).
+  El flake añade `rayrender`, `dejavu_fonts` y `fontconfig` (títulos con `magick`).
+
+> IBESTAT **no** sirve para este mapa: su geografía más fina es municipio /
+> entitat singular de població (no una malla), así que daría bloques, no spikes.
+> Kontur/GHSL son la vía para el efecto "Egipto". Alternativa 100%-IBESTAT:
+> una aguja por municipio (chunky), si se prefiere fuente puramente local.
+
 Scripts de este repo:
 - `R/10_relief_mallorca.R` — relieve 2D hipsométrico + cimas NGIB (headless).
 - `R/20_toponym_density.R` — densidad hexbin de topónimos (headless).

@@ -30,6 +30,7 @@
           jsonlite        # parseo de la API JSON de IBESTAT
           ggrepel         # etiquetas sin solapamiento
           rayshader
+          rayrender       # pathtracing CPU (render_highquality, sin GPU)
           elevatr
           giscoR
           ggspatial
@@ -56,7 +57,13 @@
 
           # nix develop .#r        -> R + rayshader/sf/terra (compila la 1ª vez)
           r = pkgs.mkShell {
-            buildInputs = dataTools ++ [ rEnv pkgs.pandoc ];
+            buildInputs = dataTools ++ [
+              rEnv pkgs.pandoc pkgs.dejavu_fonts pkgs.fontconfig
+            ];
+            # fontconfig para que magick/ggplot encuentren tipografías (títulos)
+            FONTCONFIG_FILE = pkgs.makeFontsConf {
+              fontDirectories = [ pkgs.dejavu_fonts ];
+            };
             shellHook = ''
               echo "== NGIB R shell (cartografía) =="
               echo "R con: sf, terra, rayshader, elevatr, giscoR, MetBrewer..."
