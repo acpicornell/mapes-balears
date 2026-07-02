@@ -1,4 +1,4 @@
-# Datos descargados (reproducibles vía scripts) — no versionar los pesados
+# Downloaded data (reproducible via scripts) — do not version the heavy files
 data/raw/
 data/processed/
 data/external/
@@ -18,11 +18,12 @@ result-*
 .RData
 .Rproj.user/
 
-# temporales
+# temporary files
 *.tmp
 *.log
 
-# no-código
+# non-code
 .claude/
 Rplots.pdf
 *.bak
+.DS_Store

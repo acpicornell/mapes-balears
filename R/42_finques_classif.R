@@ -1,17 +1,17 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# Subclasifica el TIPUS_LOCAL 3014 ("Finca, possessió, lloc, casa pagesa,
-# caseta") por MORFOLOGÍA DEL TOPÓNIMO — la forma en que se estudian las
-# possessions mallorquinas — porque el NGIB no las separa por campo.
+# Subclassifies TIPUS_LOCAL 3014 ("Finca, possessió, lloc, casa pagesa,
+# caseta") by TOPONYM MORPHOLOGY — the way Mallorcan possessions are
+# traditionally studied — because the NGIB does not separate them by field.
 #
 #   Possessió/estate : Son, So n', Son na, Sa n', Rafal, Alqueria, Beni-,
-#                      o TIPUS_SUPERLOCAL=5 ("Llocs", el terme menorquí)
-#   Casa (Can/Cas)   : Can, Ca'n, Ca na, Ca s', Cas  (cases pageses)
-#   Caseta/Barraca   : construccions menors
-#   Altre            : la resta (es/sa/ses/s'+topònim, etc.)
+#                      or TIPUS_SUPERLOCAL=5 ("Llocs", the Menorcan term)
+#   Casa (Can/Cas)   : Can, Ca'n, Ca na, Ca s', Cas  (country farmhouses)
+#   Caseta/Barraca   : minor constructions
+#   Altre            : the rest (es/sa/ses/s'+toponym, etc.)
 #
-# Escribe: data/processed/ngib_finques.gpkg (con columna CATEGORIA)
-# Mapa:    out/possessions_classif_mallorca.png
+# Writes: data/processed/ngib_finques.gpkg (with CATEGORIA column)
+# Map:    out/possessions_classif_mallorca.png
 # ============================================================================
 suppressPackageStartupMessages({
   library(sf); library(giscoR); library(ggplot2); library(dplyr)
@@ -35,14 +35,14 @@ st_write(g["CATEGORIA"] |> bind_cols(GRAFIA = g$GRAFIA, MUNICIPI = g$MUNICIPI,
                                      ILLA = g$ILLA),
          "data/processed/ngib_finques.gpkg", delete_dsn = TRUE, quiet = TRUE)
 
-# --- Mapa comparativo (small multiples): una faceta por categoría -----------
+# --- Comparative map (small multiples): one facet per category --------------
 bbox <- st_bbox(c(xmin = 437000, ymin = 4338000, xmax = 547000, ymax = 4422000), crs = 25831)
 mall <- gisco_get_nuts(nuts_level = 2, resolution = "01", country = "ES") |>
   filter(NUTS_ID == "ES53") |> st_transform(25831) |> st_crop(bbox)
 
 gm <- st_filter(g, mall)
 xy <- bind_cols(st_coordinates(gm) |> as.data.frame(), CATEGORIA = gm$CATEGORIA)
-# etiqueta de faceta con recuento, ordenada
+# facet label with count, ordered
 cnt <- xy |> count(CATEGORIA)
 ord <- c("Possessió", "Casa (Can/Cas)", "Caseta/Barraca", "Altre")
 lab <- setNames(sprintf("%s — %s", ord,
@@ -71,4 +71,4 @@ p <- ggplot() +
         plot.margin = margin(16, 16, 12, 16))
 
 ggsave("out/possessions_classif_mallorca.png", p, width = 12, height = 9.5, dpi = 300, bg = "#0b131d")
-cat("OK -> out/possessions_classif_mallorca.png (", n_poss, "possessions en Mallorca )\n")
+cat("OK -> out/possessions_classif_mallorca.png (", n_poss, "possessions in Mallorca )\n")

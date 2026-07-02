@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# LES POSSESSIONS DE MALLORCA — retrato de las 16.031 fincas/possessions del
-# NGIB sobre el relieve sombreado de la isla. Estilo Milos Agathon (2D).
-# Salida: out/possessions_mallorca.png
+# LES POSSESSIONS DE MALLORCA — a portrait of the 16,031 finques/possessions of
+# the NGIB over the shaded relief of the island. Milos Agathon style (2D).
+# Output: out/possessions_mallorca.png
 # ============================================================================
 suppressPackageStartupMessages({
   library(sf); library(terra); library(elevatr); library(giscoR)
@@ -10,34 +10,34 @@ suppressPackageStartupMessages({
 })
 dir.create("out", showWarnings = FALSE)
 
-# --- Contorno de Mallorca ---------------------------------------------------
+# --- Mallorca outline --------------------------------------------------------
 bbox <- st_bbox(c(xmin = 437000, ymin = 4338000, xmax = 547000, ymax = 4422000),
                 crs = 25831)
 bal <- gisco_get_nuts(nuts_level = 2, resolution = "01", country = "ES") |>
   filter(NUTS_ID == "ES53") |> st_transform(25831)
 mallorca <- st_crop(bal, bbox)
 
-# --- Relieve sombreado de fondo (sutil) -------------------------------------
+# --- Background shaded relief (subtle) --------------------------------------
 dem <- get_elev_raster(st_as_sf(st_as_sfc(bbox)), z = 9, clip = "bbox") |> rast()
 dem <- mask(crop(dem, vect(mallorca)), vect(mallorca)); dem[dem < 0] <- 0
 hs <- shade(terrain(dem, "slope", unit = "radians"),
             terrain(dem, "aspect", unit = "radians"), angle = 45, direction = 315)
 hs_df <- as.data.frame(hs, xy = TRUE); names(hs_df)[3] <- "hs"
 
-# --- Possessions (16.031) ---------------------------------------------------
+# --- Possessions (16,031) ---------------------------------------------------
 poss <- st_read("data/processed/ngib_possessions.gpkg", quiet = TRUE) |>
   st_transform(25831) |> st_filter(mallorca)
 xy <- st_coordinates(poss) |> as.data.frame()
-cat(nrow(xy), "possessions en Mallorca\n")
+cat(nrow(xy), "possessions in Mallorca\n")
 
-# --- Plot (estética nocturna, puntos luminosos) -----------------------------
+# --- Plot (nocturnal aesthetic, luminous points) ----------------------------
 bg <- "#0e1826"
 p <- ggplot() +
-  # relieve tenue para dar cuerpo a la isla
+  # faint relief to give the island some body
   geom_raster(data = hs_df, aes(x, y, alpha = hs), fill = "#9fb3c8") +
   scale_alpha(range = c(0, 0.28), guide = "none") +
   geom_sf(data = mallorca, fill = NA, colour = "#33506e", linewidth = 0.4) +
-  # doble capa de puntos: halo suave + núcleo brillante
+  # two point layers: soft halo + bright core
   geom_point(data = xy, aes(X, Y), colour = "#f2b705", size = 1.1,
              alpha = 0.12, stroke = 0) +
   geom_point(data = xy, aes(X, Y), colour = "#ffe9a8", size = 0.35,

@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# Mapa de relieve sombreado de MALLORCA con topónimos del NGIB
-# Estilo Milos Agathon, versión 2D (headless-safe: no necesita OpenGL/GPU).
-# Salida: out/mallorca_relieve.png
+# Shaded relief map of MALLORCA with NGIB toponyms
+# Milos Agathon style, 2D version (headless-safe: no OpenGL/GPU needed).
+# Output: out/mallorca_relieve.png
 # ============================================================================
 suppressPackageStartupMessages({
   library(sf); library(terra); library(elevatr)
@@ -10,33 +10,33 @@ suppressPackageStartupMessages({
 })
 dir.create("out", showWarnings = FALSE)
 
-# --- 1. Límite administrativo de las Illes Balears (NUTS2 = ES53) -----------
+# --- 1. Administrative boundary of the Illes Balears (NUTS2 = ES53) ---------
 bal <- gisco_get_nuts(nuts_level = 2, resolution = "01", country = "ES") |>
   filter(NUTS_ID == "ES53") |>
   st_transform(25831)
 
-# Recorte a Mallorca (isla mayor) por bbox aproximado en EPSG:25831
+# Crop to Mallorca (largest island) using an approximate bbox in EPSG:25831
 mallorca_bbox <- st_bbox(c(xmin = 440000, ymin = 4340000,
                            xmax = 545000, ymax = 4420000), crs = 25831)
 mallorca <- st_crop(bal, mallorca_bbox)
 
-# --- 2. Modelo digital de elevación (elevatr -> tiles AWS Terrain) ----------
+# --- 2. Digital elevation model (elevatr -> AWS Terrain tiles) --------------
 dem <- get_elev_raster(locations = st_as_sf(st_as_sfc(mallorca_bbox)),
                        z = 10, clip = "bbox") |>
   rast()
 dem <- crop(dem, vect(mallorca)) |> mask(vect(mallorca))
-dem[dem < 0] <- 0   # mar a 0
+dem[dem < 0] <- 0   # sea to 0
 
-# --- 3. Hillshade (relieve sombreado) --------------------------------------
+# --- 3. Hillshade (shaded relief) ------------------------------------------
 slope  <- terrain(dem, "slope",  unit = "radians")
 aspect <- terrain(dem, "aspect", unit = "radians")
 hs     <- shade(slope, aspect, angle = 40, direction = 315)
 
-# a data.frame para ggplot
+# to a data.frame for ggplot
 hs_df  <- as.data.frame(hs, xy = TRUE); names(hs_df)[3] <- "hs"
 dem_df <- as.data.frame(dem, xy = TRUE); names(dem_df)[3] <- "elev"
 
-# --- 4. Cimas del NGIB (TIPUS_LOCAL de accidentes geográficos: puig/serra) --
+# --- 4. NGIB peaks (TIPUS_LOCAL for landforms: puig/serra) ------------------
 llocs <- st_read("data/processed/ngib_llocs.gpkg", quiet = TRUE)
 cims <- llocs |>
   filter(grepl("Puig|Serra|Talaia|Puigmajor|Massanella",
@@ -44,8 +44,8 @@ cims <- llocs |>
   st_transform(25831)
 cims_xy <- cims |> st_coordinates() |> as.data.frame() |> bind_cols(GRAFIA = cims$GRAFIA)
 
-# --- 5. Plot estilo Milos ---------------------------------------------------
-# Tintes hipsométricos: verde tierras bajas -> marrón/blanco cimas.
+# --- 5. Milos-style plot ----------------------------------------------------
+# Hypsometric tints: green lowlands -> brown/white peaks.
 pal <- colorRampPalette(c("#3b7d54", "#8fae5d", "#e8d99a",
                           "#c99a5b", "#8c5a3b", "#f5f0e6"))(64)
 

@@ -1,102 +1,105 @@
 # NGIB — Nomenclàtor Geogràfic de les Illes Balears
 
-Proyecto **reproducible** para (1) extraer toda la base de topónimos del NGIB
-publicada por IDEIB/ICGIB y (2) generar mapas de alta calidad estilo
-[Milos Agathon](https://github.com/milos-agathon) para las Islas Baleares.
+**Reproducible** project to (1) extract the full NGIB toponym database
+published by IDEIB/ICGIB and (2) generate high-quality maps in the style of
+[Milos Agathon](https://github.com/milos-agathon) for the Balearic Islands.
 
-## Qué es el NGIB
+## What the NGIB is
 
-Servicio ArcGIS REST público del Govern de les Illes Balears con la toponimia
-oficial (modelo INSPIRE ampliado). Fuente: Mapa Topogràfic 1:5000 + nomenclátors
-de toponimia. **55.696 topónimos** puntuales.
+Public ArcGIS REST service of the Govern de les Illes Balears with the official
+toponymy (extended INSPIRE model). Source: Mapa Topogràfic 1:5000 + toponymy
+nomenclators. **55,696 point toponyms**.
 
 - Endpoint: `https://ideib.caib.es/geoserveis/rest/services/public/NGIB/MapServer`
-- Capa 0 `Lloc_anomenat` (puntos) · CRS nativo **EPSG:25831** (ETRS89 / UTM 31N)
+- Layer 0 `Lloc_anomenat` (points) · native CRS **EPSG:25831** (ETRS89 / UTM 31N)
 - `maxRecordCount = 1000`, `supportsPagination = true`
-- Campo principal `GRAFIA` (grafía preferente del nombre); tipos INSPIRE/local/
-  superlocal (códigos → tablas `Valor_*`), `MUNICIPI`, `NUCLI`, `ILLA`, `FONT`...
+- Main field `GRAFIA` (preferred spelling of the name); INSPIRE/local/
+  superlocal types (codes → `Valor_*` tables), `MUNICIPI`, `NUCLI`, `ILLA`, `FONT`...
 
-## Requisitos
+## Requirements
 
-Todo se resuelve con **Nix + flakes** (no instalas nada global):
+Everything is handled with **Nix + flakes** (nothing installed globally):
 
 ```bash
-nix develop          # shell de datos: curl, jq, gdal (ogr2ogr), make
-nix develop .#r      # shell de R: sf, terra, rayshader, elevatr, giscoR, MetBrewer...
+nix develop          # data shell: curl, jq, gdal (ogr2ogr), make
+nix develop .#r      # R shell: sf, terra, rayshader, elevatr, giscoR, MetBrewer...
 ```
 
-## Uso rápido
+## Quick start
 
 ```bash
 nix develop
-make explore     # inspecciona la API (metadatos, esquema, conteo)
-make all         # descarga topónimos + tablas de códigos
+make explore     # inspect the API (metadata, schema, count)
+make all         # download toponyms + code tables
 
 nix develop .#r
 make density     # out/baleares_densidad_toponimos.png
 make relief      # out/mallorca_relieve.png
-# 3D (necesita OpenGL / xvfb): xvfb-run -a Rscript R/30_rayshader_3d.R
+# 3D (needs OpenGL / xvfb): xvfb-run -a Rscript R/30_rayshader_3d.R
 ```
 
-## Estructura
+## Structure
 
 ```
-flake.nix                 entorno reproducible (2 devShells)
-Makefile                  atajos
+flake.nix                 reproducible environment (2 devShells)
+Makefile                  shortcuts
 scripts/
-  lib.sh                  config común (endpoint, CRS, fetch con reintentos)
-  01_explore_api.sh       metadatos + esquema + conteo
-  02_download_ngib.sh     descarga paginada -> data/processed/ngib_llocs.{gpkg,geojson,csv}
-  03_download_lookups.sh  tablas de códigos -> data/raw/lookups/*.csv
-  04_ibestat_population.sh  población municipal IBESTAT (eDatos) + catálogo
+  lib.sh                  shared config (endpoint, CRS, fetch with retries)
+  01_explore_api.sh       metadata + schema + count
+  02_download_ngib.sh     paginated download -> data/processed/ngib_llocs.{gpkg,geojson,csv}
+  03_download_lookups.sh  code tables -> data/raw/lookups/*.csv
+  04_ibestat_population.sh  IBESTAT municipal population (eDatos) + catalog
   05_ngib_subsets.sh        possessions/llogarets/nuclis -> GeoPackages
+  06_download_kontur.sh     Kontur 400m population -> data/external/kontur_ES.gpkg
+  07_download_ghsl.sh       GHS-POP 3 arcsec ~90m population -> data/external/ghsl_mallorca.tif
 R/
-  00_packages.R           check de paquetes
-  10_relief_mallorca.R    relieve sombreado 2D + cimas (headless-safe)
-  20_toponym_density.R    densidad de topónimos (hexbin)
-  30_rayshader_3d.R       relieve 3D rayshader (estilo Milos, necesita OpenGL)
-  40_possessions.R        retrato nocturno de las 16.031 edificaciones rurales
-  42_finques_classif.R    subclasifica 3014 en possessió/casa/caseta (small multiples)
-  41_llogarets.R          los 160 llogarets etiquetados
-  50_join_ibestat.R       NGIB × IBESTAT: coropleta + scatter por municipio
-  60_population_spikes.R   mapa 3D de spikes de población (Kontur, estilo Egipto)
+  00_packages.R           package check
+  10_relief_mallorca.R    2D hillshade relief + peaks (headless-safe)
+  20_toponym_density.R    toponym density (hexbin)
+  30_rayshader_3d.R       3D rayshader relief (Milos style, needs OpenGL)
+  40_possessions.R        night portrait of the 16,031 rural buildings
+  42_finques_classif.R    subclassifies 3014 into possessió/casa/caseta (small multiples)
+  41_llogarets.R          the 160 llogarets, labeled
+  50_join_ibestat.R       NGIB × IBESTAT: choropleth + scatter by municipality
+  60_population_spikes.R   3D population spike map (Kontur, warm)
+  61_population_relief.R   blue 3D relief of Mallorca + GHS-POP population as yellow points
 data/
-  raw/pages/              páginas GeoJSON crudas
-  raw/lookups/            tablas de códigos (Valor_*, Font...)
-  processed/              GeoPackage/GeoJSON/CSV finales
-out/                      mapas PNG
+  raw/pages/              raw GeoJSON pages
+  raw/lookups/            code tables (Valor_*, Font...)
+  processed/              final GeoPackage/GeoJSON/CSV
+out/                      PNG maps
 ```
 
-## Extracción manual (equivalente, sin scripts)
+## Manual extraction (equivalent, without scripts)
 
 ```bash
-# Conteo
+# Count
 curl -s "$B/0/query?where=1=1&returnCountOnly=true&f=json"      # 55696
-# Una página (offset 0)
+# One page (offset 0)
 curl -s "$B/0/query" --data-urlencode "where=1=1" \
   --data-urlencode "outFields=*" --data-urlencode "outSR=25831" \
   --data-urlencode "resultOffset=0" --data-urlencode "resultRecordCount=1000" \
   --data-urlencode "f=geojson" -G -o p0.geojson
 ```
 
-También sirve `ogr2ogr` directo sobre el driver ESRIJSON del endpoint.
+`ogr2ogr` also works directly against the endpoint's ESRIJSON driver.
 
-## Estudios monográficos
+## Monographic studies
 
-Cruce NGIB × IBESTAT a nivel municipal (ver `docs/ESTUDIS.md`):
-- **Les possessions** (`TIPUS_LOCAL 3014`) — ⚠️ el código agrupa 16.031
-  *edificaciones rurales* (finca/possessió/casa/caseta); subclasificadas por
-  morfología del topónimo, las possessions *stricto sensu* (Son/Rafal/Alqueria)
-  son ~**3.068** (2.011 en Mallorca). Ver `R/42_finques_classif.R`. El Pla de
-  Mallorca concentra la mayor densidad de edificación rural.
-- **Els llogarets** (`TIPUS_LOCAL 3011`, 160 núcleos menores) — mapa etiquetado.
+NGIB × IBESTAT cross-analysis at the municipal level (see `docs/ESTUDIS.md`):
+- **Les possessions** (`TIPUS_LOCAL 3014`) — ⚠️ the code groups 16,031
+  *rural buildings* (finca/possessió/casa/caseta); once subclassified by
+  toponym morphology, the possessions *stricto sensu* (Son/Rafal/Alqueria)
+  are ~**3,068** (2,011 in Mallorca). See `R/42_finques_classif.R`. The Pla de
+  Mallorca concentrates the highest density of rural building.
+- **Els llogarets** (`TIPUS_LOCAL 3011`, 160 minor nuclei) — labeled map.
 
-Fuentes de datos y esquemas: `docs/API.md` (NGIB), `docs/IBESTAT.md` (IBESTAT
-eDatos), `docs/MILOS.md` (técnicas cartográficas).
+Data sources and schemas: `docs/API.md` (NGIB), `docs/IBESTAT.md` (IBESTAT
+eDatos), `docs/MILOS.md` (cartographic techniques).
 
-## Licencia de los datos
+## Data license
 
-Los datos del NGIB son del **ICGIB / Govern de les Illes Balears** (IDEIB).
-Reutilización sujeta a las condiciones de IDEIB (atribución). Cita sugerida:
+The NGIB data belongs to the **ICGIB / Govern de les Illes Balears** (IDEIB).
+Reuse is subject to IDEIB's conditions (attribution). Suggested citation:
 *"Font: Nomenclàtor Geogràfic de les Illes Balears (NGIB), ICGIB — ideib.caib.es"*.
-Verifica los términos vigentes en https://ideib.caib.es antes de redistribuir.
+Check the terms in force at https://ideib.caib.es before redistributing.

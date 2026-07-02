@@ -1,25 +1,27 @@
 .PHONY: help explore extract lookups subsets ibestat all \
-        relief density possessions llogarets crossibestat maps clean
+        relief density possessions llogarets crossibestat spikes poblacio maps clean
 
 help:
-	@echo "NGIB — targets disponibles:"
-	@echo "  -- datos (nix develop) --"
-	@echo "  make explore     Inspecciona la API NGIB (metadatos, esquema, conteo)"
-	@echo "  make extract     Descarga los 55.696 topónimos -> data/processed/ngib_llocs.*"
-	@echo "  make lookups     Descarga las tablas de códigos NGIB"
-	@echo "  make subsets     Extrae possessions/llogarets/nuclis a GeoPackages"
-	@echo "  make ibestat     Descarga población municipal (IBESTAT eDatos)"
-	@echo "  make kontur      Descarga población Kontur 400m (para spikes 3D)"
+	@echo "NGIB — available targets:"
+	@echo "  -- data (nix develop) --"
+	@echo "  make explore     Inspect the NGIB API (metadata, schema, count)"
+	@echo "  make extract     Download the 55,696 toponyms -> data/processed/ngib_llocs.*"
+	@echo "  make lookups     Download the NGIB code tables"
+	@echo "  make subsets     Extract possessions/llogarets/nuclis to GeoPackages"
+	@echo "  make ibestat     Download municipal population (IBESTAT eDatos)"
+	@echo "  make kontur      Download Kontur 400m population (for 3D spikes)"
+	@echo "  make ghsl        Download GHS-POP 3 arcsec ~90m population (for relief map)"
 	@echo "  make all         extract + lookups + subsets + ibestat"
-	@echo "  -- mapas (nix develop .#r) --"
-	@echo "  make density     Densidad de topónimos (hexbin)"
-	@echo "  make relief      Relieve hipsométrico de Mallorca"
-	@echo "  make possessions Retrato nocturno de las 16.031 possessions"
-	@echo "  make llogarets   Los 160 llogarets etiquetados"
-	@echo "  make crossibestat  Coropleta possessions/100km² + scatter (NGIB×IBESTAT)"
-	@echo "  make spikes      Mapa 3D de spikes de población (estilo Milos/Egipto)"
-	@echo "  make maps        todos los mapas"
-	@echo "  make clean       Borra data/ y out/"
+	@echo "  -- maps (nix develop .#r) --"
+	@echo "  make density     Toponym density (hexbin)"
+	@echo "  make relief      Hypsometric relief of Mallorca"
+	@echo "  make possessions Night portrait of the 16,031 possessions"
+	@echo "  make llogarets   The 160 llogarets, labeled"
+	@echo "  make crossibestat  Choropleth possessions/100km² + scatter (NGIB×IBESTAT)"
+	@echo "  make spikes      3D population spike map (warm, Milos style)"
+	@echo "  make poblacio    Blue 3D relief of Mallorca + population as yellow points"
+	@echo "  make maps        all maps"
+	@echo "  make clean       Delete data/ and out/"
 
 explore:
 	bash scripts/01_explore_api.sh
@@ -38,6 +40,9 @@ ibestat:
 
 kontur:
 	bash scripts/06_download_kontur.sh
+
+ghsl:
+	bash scripts/07_download_ghsl.sh
 
 all: extract lookups subsets ibestat
 
@@ -62,7 +67,10 @@ crossibestat:
 spikes: kontur
 	Rscript R/60_population_spikes.R
 
-maps: density relief possessions classify llogarets crossibestat spikes
+poblacio: ghsl
+	Rscript R/61_population_relief.R
+
+maps: density relief possessions classify llogarets crossibestat spikes poblacio
 
 clean:
 	rm -rf data/raw data/processed out

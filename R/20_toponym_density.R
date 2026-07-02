@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# Mapa de DENSIDAD de topónimos del NGIB sobre las Illes Balears (hexbin).
-# ¿Dónde hay más "lugares con nombre"? Estilo Milos Agathon (2D, headless-safe).
-# Salida: out/baleares_densidad_toponimos.png
+# DENSITY map of NGIB toponyms across the Illes Balears (hexbin).
+# Where are there more "named places"? Milos Agathon style (2D, headless-safe).
+# Output: out/baleares_densidad_toponimos.png
 # ============================================================================
 suppressPackageStartupMessages({
   library(sf); library(ggplot2); library(dplyr); library(giscoR); library(MetBrewer)

@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Configuración común del proyecto NGIB.
+# Common configuration for the NGIB project.
 set -euo pipefail
 
-# --- Endpoint ArcGIS REST del Nomenclàtor Geogràfic de les Illes Balears ---
-# Descubierto en: https://ideib.caib.es/geoserveis/rest/services/public/NGIB/MapServer
+# --- ArcGIS REST endpoint of the Nomenclàtor Geogràfic de les Illes Balears ---
+# Discovered at: https://ideib.caib.es/geoserveis/rest/services/public/NGIB/MapServer
 export NGIB_BASE="https://ideib.caib.es/geoserveis/rest/services/public/NGIB/MapServer"
 
-# Capa 0 = Lloc_anomenat (topónimos como puntos). CRS nativo EPSG:25831 (ETRS89 / UTM 31N).
+# Layer 0 = Lloc_anomenat (place names as points). Native CRS EPSG:25831 (ETRS89 / UTM 31N).
 export NGIB_LAYER="${NGIB_LAYER:-0}"
 export NGIB_SRID="${NGIB_SRID:-25831}"
-export PAGE_SIZE="${PAGE_SIZE:-1000}"   # = maxRecordCount del servicio
+export PAGE_SIZE="${PAGE_SIZE:-1000}"   # = service maxRecordCount
 
-# Rutas
+# Paths
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export ROOT
 export RAW="$ROOT/data/raw"
 export PROC="$ROOT/data/processed"
 export LOOKUPS="$RAW/lookups"
 
-# Descarga robusta con reintentos.
+# Robust download with retries.
 fetch() {
   curl -sS --fail --retry 4 --retry-delay 2 --retry-connrefused -m 120 "$@"
 }

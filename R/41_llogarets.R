@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# ELS LLOGARETS DE LES ILLES BALEARS — los 160 núcleos de población menores
-# (TIPUS_LOCAL 3011) del NGIB, etiquetados sobre las islas. Estilo editorial.
-# Salida: out/llogarets.png
+# ELS LLOGARETS DE LES ILLES BALEARS — the 160 smaller population nuclei
+# (TIPUS_LOCAL 3011) from the NGIB, labelled over the islands. Editorial style.
+# Output: out/llogarets.png
 # ============================================================================
 suppressPackageStartupMessages({
   library(sf); library(giscoR); library(ggplot2); library(dplyr); library(ggrepel)

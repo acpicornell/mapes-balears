@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# Cruce NGIB × IBESTAT a nivel municipal:
-#   possessions por municipio  ×  población empadronada (IBESTAT)  ×  superficie
-# Produce:
-#   out/possessions_por_municipio.png   (coropleta: possessions / 100 km²)
-#   out/possessions_vs_poblacion.png    (dispersión población vs nº possessions)
+# NGIB × IBESTAT cross at municipal level:
+#   possessions per municipality  ×  registered population (IBESTAT)  ×  area
+# Produces:
+#   out/possessions_por_municipio.png   (choropleth: possessions / 100 km²)
+#   out/possessions_vs_poblacion.png    (scatter: population vs. number of possessions)
 #   data/processed/municipis_indicadors.csv
 # ============================================================================
 suppressPackageStartupMessages({
@@ -13,46 +13,46 @@ suppressPackageStartupMessages({
 })
 dir.create("out", showWarnings = FALSE)
 
-# --- 1. Población municipal (IBESTAT, JSON eDatos) --------------------------
+# --- 1. Municipal population (IBESTAT, eDatos JSON) -------------------------
 j <- fromJSON("data/raw/ibestat/pob_municipi.json", simplifyVector = FALSE)
 dims <- j$data$dimensions$dimension
 terr <- vapply(dims[[1]]$representations$representation, \(x) x$code, "")   # 67 INE
 sexo <- vapply(dims[[3]]$representations$representation, \(x) x$code, "")   # _T,M,F
-meas <- vapply(dims[[4]]$representations$representation, \(x) x$code, "")   # 3 medidas
-# observations: valores separados por " | ", orden row-major TERR×TIME(1)×SEXO×MED
+meas <- vapply(dims[[4]]$representations$representation, \(x) x$code, "")   # 3 measures
+# observations: values separated by " | ", row-major order TERR×TIME(1)×SEXO×MED
 vals <- as.numeric(strsplit(j$data$observations, "\\s*\\|\\s*")[[1]])
 nS <- length(sexo); nM <- length(meas)                                     # 3, 3
 iT <- which(sexo == "_T"); iP <- which(meas == "POBLACION_PADRON")         # 1, 2
-# población total = por cada municipio, bloque de nS*nM; posición (iT-1)*nM + iP
+# total population = for each municipality, block of nS*nM; position (iT-1)*nM + iP
 pos <- (seq_along(terr) - 1) * (nS * nM) + (iT - 1) * nM + iP
 pob <- data.frame(ine = terr, poblacio = vals[pos])
-cat("IBESTAT: ", nrow(pob), " municipios, población total = ",
+cat("IBESTAT: ", nrow(pob), " municipalities, total population = ",
     format(sum(pob$poblacio), big.mark = "."), "\n", sep = "")
 
-# --- 2. Límites municipales (GISCO LAU) + superficie ------------------------
+# --- 2. Municipal boundaries (GISCO LAU) + area -----------------------------
 lau <- gisco_get_lau(year = "2021", country = "ES") |>
   st_transform(25831)
-# El código INE está en GISCO_ID tipo "ES_07001" o en LAU_ID
+# The INE code is in GISCO_ID like "ES_07001" or in LAU_ID
 lau$ine <- sub(".*_", "", lau$GISCO_ID)
 bal <- lau |> filter(ine %in% pob$ine) |>
   mutate(area_km2 = as.numeric(st_area(geometry)) / 1e6)
-cat("GISCO LAU: ", nrow(bal), " municipios de Baleares\n", sep = "")
+cat("GISCO LAU: ", nrow(bal), " municipalities of the Balearic Islands\n", sep = "")
 
-# --- 3. Possessions por municipio (conteo espacial) ------------------------
+# --- 3. Possessions per municipality (spatial count) -----------------------
 poss <- st_read("data/processed/ngib_possessions.gpkg", quiet = TRUE) |>
   st_transform(25831)
 bal$n_poss <- lengths(st_intersects(bal, poss))
 
-# --- 4. Indicadores ---------------------------------------------------------
+# --- 4. Indicators ----------------------------------------------------------
 m <- bal |>
   left_join(pob, by = "ine") |>
-  mutate(poss_km2   = n_poss / area_km2 * 100,       # possessions por 100 km²
-         poss_1000h = n_poss / poblacio * 1000)      # possessions por 1000 hab
+  mutate(poss_km2   = n_poss / area_km2 * 100,       # possessions per 100 km²
+         poss_1000h = n_poss / poblacio * 1000)      # possessions per 1000 inhabitants
 
 write.csv(st_drop_geometry(m), "data/processed/municipis_indicadors.csv",
           row.names = FALSE, fileEncoding = "UTF-8")
 
-# --- 5a. Coropleta: possessions por 100 km² ---------------------------------
+# --- 5a. Choropleth: possessions per 100 km² --------------------------------
 p1 <- ggplot(m) +
   geom_sf(aes(fill = poss_km2), colour = "white", linewidth = 0.15) +
   scale_fill_gradientn(colours = met.brewer("Tam"), name = "Possessions\nper 100 km²") +
@@ -66,7 +66,7 @@ p1 <- ggplot(m) +
 ggsave("out/possessions_por_municipio.png", p1, width = 11, height = 8.5,
        dpi = 300, bg = "#f4efe6")
 
-# --- 5b. Dispersión población vs possessions --------------------------------
+# --- 5b. Scatter population vs. possessions ---------------------------------
 d <- st_drop_geometry(m) |> filter(poblacio > 0)
 p2 <- ggplot(d, aes(poblacio, n_poss)) +
   geom_point(aes(size = area_km2), colour = "#b5322e", alpha = 0.6) +
@@ -80,6 +80,6 @@ p2 <- ggplot(d, aes(poblacio, n_poss)) +
   theme_minimal(base_size = 13)
 ggsave("out/possessions_vs_poblacion.png", p2, width = 10, height = 7.5, dpi = 300, bg = "white")
 
-cat("OK -> coropleta, dispersión y municipis_indicadors.csv\n")
+cat("OK -> choropleth, scatter and municipis_indicadors.csv\n")
 print(head(st_drop_geometry(m) |> arrange(desc(poss_km2)) |>
              select(LAU_NAME, n_poss, area_km2, poblacio, poss_km2), 8))

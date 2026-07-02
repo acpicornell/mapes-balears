@@ -1,59 +1,59 @@
-# API de IBESTAT (plataforma eDatos / METAMAC)
+# IBESTAT API (eDatos / METAMAC platform)
 
-IBESTAT publica sus datos en la plataforma **eDatos** (SIEMAC/METAMAC, la misma
-del ISTAC de Canarias). API REST bien estructurada, formato XML por defecto y
-**JSON con `Accept: application/json`**.
+IBESTAT publishes its data on the **eDatos** platform (SIEMAC/METAMAC, the same
+one used by the ISTAC of the Canary Islands). Well-structured REST API, XML
+format by default and **JSON with `Accept: application/json`**.
 
 Base: `https://ibestat.es/edatos/apis/statistical-resources/v1.0`
 
-## Recursos (verificado 2026-07-02)
+## Resources (verified 2026-07-02)
 
-| Recurso | Endpoint | Total |
+| Resource | Endpoint | Total |
 |---------|----------|-------|
 | datasets | `/datasets` · `/datasets/IBESTAT` | **4150** |
 | collections | `/collections` | 85 |
-| queries (predefinidas) | `/queries` | 349 |
+| queries (predefined) | `/queries` | 349 |
 
-Paginación: `?limit=N&offset=M` (limit máx. 1000). Cada item trae `id`, `urn` y
-`name.text[]` (títulos `ca`/`es`).
+Pagination: `?limit=N&offset=M` (limit max. 1000). Each item carries `id`, `urn`
+and `name.text[]` (`ca`/`es` titles).
 
-## Leer un dataset (cubo de datos)
+## Reading a dataset (data cube)
 
 ```
-/datasets/IBESTAT/{ID}/~latest          # ~latest = última versión (o /1.0)
+/datasets/IBESTAT/{ID}/~latest          # ~latest = latest version (or /1.0)
 Accept: application/json
 ```
 
-Estructura del JSON:
-- `data.dimensions.dimension[]` → cada dimensión con `dimensionId` y
+JSON structure:
+- `data.dimensions.dimension[]` → each dimension with `dimensionId` and
   `representations.representation[]` (`code`, `index`).
-- `data.observations` → **string** con los valores en orden *row-major* sobre
-  las dimensiones, **separados por `" | "`** (los ausentes van vacíos).
+- `data.observations` → **string** with the values in *row-major* order over
+  the dimensions, **separated by `" | "`** (missing ones are left empty).
 
-### Ejemplo usado en este proyecto — población municipal
+### Example used in this project — municipal population
 
 Dataset **`000001A_000001`** "Població municipal empadronada segons el sexe.
-Municipis de les Illes Balears per anys". Dimensiones:
+Municipis de les Illes Balears per anys". Dimensions:
 
-| dim | id | tamaño | códigos |
+| dim | id | size | codes |
 |-----|----|--------|---------|
-| 0 | `TERRITORIO` | 67 | INE municipal (`07001`…) — **coincide con `MUNICIPI_INE_ID` del NGIB** |
+| 0 | `TERRITORIO` | 67 | INE municipal (`07001`…) — **matches `MUNICIPI_INE_ID` in the NGIB** |
 | 1 | `TIME_PERIOD` | 28 | 2025 … 1998 |
 | 2 | `SEXO` | 3 | `_T`, `M`, `F` |
 | 3 | `MEDIDAS` | 3 | `POBLACION_PADRON_TVA`, `POBLACION_PADRON`, `POBLACION_PADRON_VA` |
 
-Filtro por dimensión: `?dim=TIME_PERIOD:2025` (encadenar con `|`; en la práctica
-solo aplicó fiable la 1ª dim, así que **descargamos el corte del año y
-seleccionamos `_T` + `POBLACION_PADRON` en R** — ver `R/50_join_ibestat.R`).
+Filter by dimension: `?dim=TIME_PERIOD:2025` (chain with `|`; in practice only
+the 1st dimension applied reliably, so **we download the year slice and select
+`_T` + `POBLACION_PADRON` in R** — see `R/50_join_ibestat.R`).
 
-Para la observación de un municipio: bloque de `nSEXO*nMEDIDAS = 9` valores;
-población total = posición `(idx(_T))*nMED + idx(POBLACION_PADRON)`.
+For a municipality's observation: block of `nSEXO*nMEDIDAS = 9` values;
+total population = position `(idx(_T))*nMED + idx(POBLACION_PADRON)`.
 
-## Catálogo temático (para explorar los 4150)
+## Thematic catalog (to explore the 4150)
 
-`scripts/04_ibestat_population.sh` vuelca `data/raw/ibestat/catalogo_datasets.csv`
-(id + título). Busca ahí posibles cruces: superficie, actividad agraria,
-viviendas, turismo, entidades singulares de población, etc.
+`scripts/04_ibestat_population.sh` dumps `data/raw/ibestat/catalogo_datasets.csv`
+(id + title). Look there for possible cross-references: area, agrarian activity,
+housing, tourism, singular population entities, etc.
 
-> Cruce clave con el NGIB: el **código INE municipal** (`MUNICIPI_INE_ID` en la
-> tabla `Valor_municipi` del NGIB = `TERRITORIO` en IBESTAT).
+> Key cross-reference with the NGIB: the **municipal INE code** (`MUNICIPI_INE_ID` in the
+> `Valor_municipi` table of the NGIB = `TERRITORIO` in IBESTAT).

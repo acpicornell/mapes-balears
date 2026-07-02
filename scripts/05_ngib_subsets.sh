@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Extrae subconjuntos temáticos del NGIB a GeoPackages independientes usando el
-# GeoPackage global (data/processed/ngib_llocs.gpkg) y ogr2ogr + SQL.
+# Extract thematic subsets of the NGIB into independent GeoPackages using the
+# global GeoPackage (data/processed/ngib_llocs.gpkg) and ogr2ogr + SQL.
 #
 #   possessions  = TIPUS_LOCAL 3014 (Finca, possessió, lloc, casa pagesa, caseta)
 #   llogarets    = TIPUS_LOCAL 3011 (Altre nucli de població, llogaret)
-#   nuclis       = TIPUS_LOCAL 3010 (capital de municipi)
+#   nuclis       = TIPUS_LOCAL 3010 (municipality capital)
 #
-# Uso: bash scripts/05_ngib_subsets.sh
+# Usage: bash scripts/05_ngib_subsets.sh
 source "$(dirname "$0")/lib.sh"
 SRC="$PROC/ngib_llocs.gpkg"
-[ -s "$SRC" ] || { echo "Falta $SRC — ejecuta scripts/02_download_ngib.sh"; exit 1; }
+[ -s "$SRC" ] || { echo "Missing $SRC — run scripts/02_download_ngib.sh"; exit 1; }
 
-extract() {  # nombre  codigo
+extract() {  # name  code
   local name="$1" code="$2"
   ogr2ogr -f GPKG "$PROC/ngib_${name}.gpkg" "$SRC" \
     -sql "SELECT GRAFIA, MUNICIPI, NUCLI, ILLA, TIPUS_LOCAL, TIPUS_INSPIRE, geom FROM llocs WHERE TIPUS_LOCAL = $code" \

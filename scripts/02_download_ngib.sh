@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# Descarga COMPLETA de los topónimos del NGIB (capa Lloc_anomenat) por paginación.
-# Estrategia: bucle sobre resultOffset (soportado: supportsPagination=true),
-#   f=geojson, outSR=25831, outFields=*  ->  páginas GeoJSON  ->  merge a GeoPackage.
+# FULL download of the NGIB place names (Lloc_anomenat layer) via pagination.
+# Strategy: loop over resultOffset (supported: supportsPagination=true),
+#   f=geojson, outSR=25831, outFields=*  ->  GeoJSON pages  ->  merge into GeoPackage.
 #
-# Salidas en data/processed/:
-#   ngib_llocs.gpkg     (GeoPackage, capa 'llocs')  <- formato de trabajo
-#   ngib_llocs.geojson  (GeoJSON WGS84, para web/inspección)
-#   ngib_llocs.csv      (atributos + X/Y en 25831)
+# Outputs in data/processed/:
+#   ngib_llocs.gpkg     (GeoPackage, layer 'llocs')  <- working format
+#   ngib_llocs.geojson  (GeoJSON WGS84, for web/inspection)
+#   ngib_llocs.csv      (attributes + X/Y in 25831)
 #
-# Uso: bash scripts/02_download_ngib.sh
+# Usage: bash scripts/02_download_ngib.sh
 source "$(dirname "$0")/lib.sh"
 
 mkdir -p "$RAW/pages" "$PROC"
 Q="$NGIB_BASE/$NGIB_LAYER/query"
 
 TOTAL=$(fetch "$Q?where=1%3D1&returnCountOnly=true&f=json" | jq -r .count)
-log "Topónimos a descargar: $TOTAL (páginas de $PAGE_SIZE)"
+log "Place names to download: $TOTAL (pages of $PAGE_SIZE)"
 
 offset=0
 page=0
@@ -33,13 +33,13 @@ while [ "$offset" -lt "$TOTAL" ]; do
       -G -o "$out"
     n=$(jq '.features | length' "$out")
     log "  offset $offset -> $n features"
-    [ "$n" -eq 0 ] && { log "página vacía, fin anticipado"; break; }
+    [ "$n" -eq 0 ] && { log "empty page, early stop"; break; }
   fi
   offset=$((offset + PAGE_SIZE))
   page=$((page + 1))
 done
 
-log "Fusionando $(ls "$RAW"/pages/*.geojson | wc -l) páginas -> GeoPackage"
+log "Merging $(ls "$RAW"/pages/*.geojson | wc -l) pages -> GeoPackage"
 GPKG="$PROC/ngib_llocs.gpkg"
 rm -f "$GPKG"
 first=1
@@ -53,9 +53,9 @@ for f in "$RAW"/pages/p_*.geojson; do
 done
 
 CNT=$(ogrinfo -so "$GPKG" llocs | awk -F': ' '/Feature Count/{print $2}')
-log "GeoPackage listo: $GPKG  ($CNT features)"
+log "GeoPackage ready: $GPKG  ($CNT features)"
 
-# Derivados
+# Derived outputs
 ogr2ogr -f GeoJSON "$PROC/ngib_llocs.geojson" "$GPKG" -t_srs EPSG:4326
 ogr2ogr -f CSV "$PROC/ngib_llocs.csv" "$GPKG" -lco GEOMETRY=AS_XY
-log "Derivados: ngib_llocs.geojson (WGS84) y ngib_llocs.csv"
+log "Derived outputs: ngib_llocs.geojson (WGS84) and ngib_llocs.csv"

@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
 # ============================================================================
-# Mapa 3D de relieve de MALLORCA con rayshader — el estilo "marca de la casa"
-# de Milos Agathon. Requiere OpenGL/rgl (entorno con display o software render).
-# Salida: out/mallorca_3d.png
+# 3D relief map of MALLORCA with rayshader — Milos Agathon's "signature"
+# style. Requires OpenGL/rgl (an environment with a display or software render).
+# Output: out/mallorca_3d.png
 #
-# NOTA: en un servidor headless necesitas xvfb-run:
+# NOTE: on a headless server you need xvfb-run:
 #   xvfb-run -a Rscript R/30_rayshader_3d.R
 # ============================================================================
 suppressPackageStartupMessages({
@@ -20,7 +20,7 @@ dem <- get_elev_raster(st_as_sf(st_as_sfc(bbox)), z = 11, clip = "bbox") |> rast
 dem[dem < 0] <- 0
 mat <- raster_to_matrix(dem)
 
-# Paleta de elevación estilo Milos
+# Milos-style elevation palette
 pal <- colorRampPalette(c("#2a5a3e", "#7fae6f", "#e8dCa0", "#c98a5e", "#f2f2f2"))(256)
 
 mat |>

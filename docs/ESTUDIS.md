@@ -1,98 +1,99 @@
-# Dos estudios monográficos: possessions i llogarets
+# Two monographic studies: possessions and llogarets
 
-Cruce del **NGIB** (topónimos) con **IBESTAT** (población municipal 2025) y
-límites GISCO. Reproducible: `make all && make possessions llogarets crossibestat`.
+Cross-referencing the **NGIB** (place names) with **IBESTAT** (2025 municipal
+population) and GISCO boundaries. Reproducible: `make all && make possessions llogarets crossibestat`.
 
 ---
 
 ## 1. Les possessions de Mallorca (i Balears)
 
-⚠️ **Matiz importante.** El `TIPUS_LOCAL 3014` no son "16.031 possessions": es un
-código que **agrupa** *"Finca, possessió, lloc, casa pagesa, caseta"*. El NGIB no
-las separa por campo (`TIPUS_SUPERLOCAL` solo desagrega ~1.264: sobre todo 1.012
-*"Llocs"*, el término menorquín de possessió). Por eso subclasificamos por
-**morfología del topónimo** (`R/42_finques_classif.R`), que es como se estudian
-las possessions mallorquinas:
+⚠️ **Important nuance.** `TIPUS_LOCAL 3014` is not "16,031 possessions": it is a
+code that **groups together** *"Finca, possessió, lloc, casa pagesa, caseta"*. The
+NGIB does not separate them by field (`TIPUS_SUPERLOCAL` only breaks out ~1,264:
+mostly 1,012 *"Llocs"*, the Menorcan term for a possessió). That is why we
+subclassify by **place-name morphology** (`R/42_finques_classif.R`), which is how
+Mallorcan possessions are studied:
 
-| categoría | criterio (nombre) | nº (Balears) |
+| category | criterion (name) | count (Balears) |
 |-----------|-------------------|-------------:|
-| **Possessió** | Son, So n', Son na, Sa n', Rafal, Alqueria, Beni-, o "Llocs" (Menorca) | **3.068** |
-| Casa (Can/Cas) | Can, Ca'n, Ca na, Ca s', Cas (cases pageses) | 9.423 |
-| Caseta/Barraca | construccions menors | 799 |
-| Altre | es/sa/ses/s' + topònim, etc. | 2.741 |
+| **Possessió** | Son, So n', Son na, Sa n', Rafal, Alqueria, Beni-, or "Llocs" (Menorca) | **3,068** |
+| Casa (Can/Cas) | Can, Ca'n, Ca na, Ca s', Cas (cases pageses) | 9,423 |
+| Caseta/Barraca | minor constructions | 799 |
+| Other | es/sa/ses/s' + toponym, etc. | 2,741 |
 
-Es decir, **possessions *stricto sensu* ≈ 3.000** (2.011 en Mallorca), no 16.031.
-El mapa `out/possessions_classif_mallorca.png` (small multiples) lo hace evidente:
-las possessions se concentran en el **Pla** y el **Migjorn**; las cases "Can…"
-son mayoría y se pegan más a los pueblos.
+In other words, **possessions *stricto sensu* ≈ 3,000** (2,011 in Mallorca), not
+16,031. The map `out/possessions_classif_mallorca.png` (small multiples) makes it
+obvious: the possessions concentrate in the **Pla** and the **Migjorn**; the
+"Can…" cases are the majority and cluster closer to the villages.
 
-Los análisis municipales de abajo usan el conjunto completo (16.031 *edificacions
-rurals*) como proxy de huella rural; para un estudio estricto de possessions,
-filtrar `CATEGORIA = 'Possessió'` en `data/processed/ngib_finques.gpkg`.
+The municipal analyses below use the full set (16,031 *edificacions rurals*) as a
+proxy for the rural footprint; for a strict study of possessions, filter
+`CATEGORIA = 'Possessió'` in `data/processed/ngib_finques.gpkg`.
 
-Población de referencia (IBESTAT 2025): 1.237.480 hab.
+Reference population (IBESTAT 2025): 1,237,480 inhabitants.
 
-Mapas:
-- `out/possessions_mallorca.png` — retrato nocturno de las ~12.000 possessions de
-  Mallorca sobre el relieve. Se lee la estructura agraria histórica: el **Pla**
-  denso, la **Serra de Tramuntana** más dispersa, el litoral turístico casi vacío.
-- `out/possessions_por_municipio.png` — coropleta possessions/100 km².
-- `out/possessions_vs_poblacion.png` — nº de possessions vs. población (log).
+Maps:
+- `out/possessions_mallorca.png` — nocturnal portrait of Mallorca's ~12,000
+  possessions over the relief. The historical agrarian structure is legible: the
+  dense **Pla**, the more scattered **Serra de Tramuntana**, the tourist coast
+  almost empty.
+- `out/possessions_por_municipio.png` — choropleth of possessions/100 km².
+- `out/possessions_vs_poblacion.png` — number of possessions vs. population (log).
 
-### Hallazgos
+### Findings
 
-**Densidad (possessions/100 km²)** — dominan los municipios agrícolas del Pla:
+**Density (possessions/100 km²)** — the agricultural municipalities of the Pla dominate:
 
-| municipi | poss/100km² | possessions | hab |
+| municipi | poss/100km² | possessions | inhab |
 |----------|------------:|------------:|----:|
-| Costitx | 905 | 139 | 1.591 |
-| Montuïri | 841 | 348 | 3.289 |
-| Sant Joan de Labritja | 790 | 960 | 7.046 |
-| Algaida | 754 | 681 | 6.357 |
-| Sineu | 719 | 344 | 4.537 |
+| Costitx | 905 | 139 | 1,591 |
+| Montuïri | 841 | 348 | 3,289 |
+| Sant Joan de Labritja | 790 | 960 | 7,046 |
+| Algaida | 754 | 681 | 6,357 |
+| Sineu | 719 | 344 | 4,537 |
 
-**Número absoluto** — municipios grandes y de término extenso:
+**Absolute number** — large municipalities with extensive territory:
 
-| municipi | possessions | hab |
+| municipi | possessions | inhab |
 |----------|------------:|----:|
-| Manacor | 1.546 | 49.153 |
-| Sant Joan de Labritja | 960 | 7.046 |
-| Palma | 821 | 434.786 |
-| Felanitx | 796 | 19.146 |
-| Llucmajor | 746 | 40.502 |
+| Manacor | 1,546 | 49,153 |
+| Sant Joan de Labritja | 960 | 7,046 |
+| Palma | 821 | 434,786 |
+| Felanitx | 796 | 19,146 |
+| Llucmajor | 746 | 40,502 |
 
-**Possessions por 1.000 habitantes** (huella rural relativa) — Sant Joan de
-Labritja (136), Algaida (107), Montuïri (106): territorios donde la toponimia de
-finca pesa mucho más que la población actual. En el otro extremo, Eivissa,
-Calvià o Palma: mucha población, pocas possessions por habitante.
+**Possessions per 1,000 inhabitants** (relative rural footprint) — Sant Joan de
+Labritja (136), Algaida (107), Montuïri (106): territories where farm toponymy
+weighs far more than the current population. At the other extreme, Eivissa,
+Calvià or Palma: lots of population, few possessions per inhabitant.
 
-> Nota: Sant Joan de Labritja (Eivissa) destaca en las tres métricas — la
-> toponimia de finca pitiüsa está muy representada en el NGIB.
+> Note: Sant Joan de Labritja (Eivissa) stands out on all three metrics — Ibizan
+> farm toponymy is very well represented in the NGIB.
 
 ---
 
 ## 2. Els llogarets
 
-`TIPUS_LOCAL 3011` — *"Altre nucli de població, llogaret"* (núcleo de población
-menor, por debajo del municipio). **160 llogarets** en todas las islas.
+`TIPUS_LOCAL 3011` — *"Altre nucli de població, llogaret"* (a minor population
+nucleus, below the municipality). **160 llogarets** across all the islands.
 
-Mapa: `out/llogarets.png` — los 160 llogarets etiquetados sobre las islas
-(Randa, Biniaraix, Caimari, Moscari, Portocolom, s'Horta, Biniagual…).
+Map: `out/llogarets.png` — the 160 llogarets labelled over the islands (Randa,
+Biniaraix, Caimari, Moscari, Portocolom, s'Horta, Biniagual…).
 
-Posibles ampliaciones del estudio:
-- Cruzar con **población por entidad singular** de IBESTAT (buscar en
-  `data/raw/ibestat/catalogo_datasets.csv`) para dimensionar cada llogaret.
-- Relacionar llogarets ↔ possessions cercanas (muchos llogarets nacen de la
-  parcelación de una possessió): buffer/vecindad espacial en `sf`.
+Possible extensions of the study:
+- Cross-reference with **population by entitat singular** from IBESTAT (look in
+  `data/raw/ibestat/catalogo_datasets.csv`) to size each llogaret.
+- Relate llogarets ↔ nearby possessions (many llogarets arise from the
+  parcelling of a possessió): spatial buffer/neighbourhood in `sf`.
 
 ---
 
-## Reproducir
+## Reproduce
 
 ```bash
-nix develop            # datos
-make all               # NGIB (topónimos, subsets, lookups) + IBESTAT
-nix develop .#r        # cartografía
+nix develop            # data
+make all               # NGIB (place names, subsets, lookups) + IBESTAT
+nix develop .#r        # cartography
 make possessions llogarets crossibestat
 ```
-Indicadores por municipio: `data/processed/municipis_indicadors.csv`.
+Indicators by municipality: `data/processed/municipis_indicadors.csv`.
