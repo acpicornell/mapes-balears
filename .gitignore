@@ -21,3 +21,8 @@ result-*
 # temporales
 *.tmp
 *.log
+
+# no-código
+.claude/
+Rplots.pdf
+*.bak
