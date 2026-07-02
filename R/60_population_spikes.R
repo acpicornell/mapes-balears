@@ -45,19 +45,22 @@ texture <- grDevices::colorRampPalette(pal)(256)
 
 # --- 5. Escena 3D + pathtracing (marc apaïsat, norte arriba: theta = 0) ------
 dims <- dim(mat)                                   # [files(N-S), columnes(E-O)]
+# solid = TRUE -> la isla es un bloque con grosor que proyecta su silueta sencera
+# (com la massa terrestre del mapa d'Alemanya), no només les ombres dels spikes.
 mat |>
   height_shade(texture = texture) |>
-  plot_3d(heightmap = mat, solid = FALSE, soliddepth = 0, zscale = 20,
-          shadowdepth = 0, shadow_darkness = 0.6, windowsize = c(1400, 1050),
+  plot_3d(heightmap = mat, solid = TRUE, soliddepth = -600, shadowdepth = -650,
+          zscale = 20, shadow = TRUE, shadow_darkness = 0.5,
+          windowsize = c(1400, 1050),
           phi = 68, zoom = 0.66, theta = 0, background = "#e7e4dd")
 
-# Luz rasante (clave desde el NO, sombra proyectada al SE, como el mapa DE) +
-# luz de relleno suave. La sombra cae sobre el plano de tierra -> volumen.
+# Luz principal (NO) + relleno suave. Con la isla sólida, proyecta una ombra
+# compacta de tota la silueta sobre el pla de terra.
 render_highquality(
   filename = "out/_render.png", preview = FALSE,
   light = TRUE,
-  lightdirection = c(315, 120), lightaltitude = c(38, 70),
-  lightintensity = c(700, 300), lightcolor = c("#fff3dd", "#ffffff"),
+  lightdirection = c(315, 120), lightaltitude = c(48, 75),
+  lightintensity = c(680, 320), lightcolor = c("#fff3dd", "#ffffff"),
   interactive = FALSE, width = 1600, height = 1200, samples = 320
 )
 cat("render OK, componiendo títulos y leyenda...\n")
