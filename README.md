@@ -51,7 +51,7 @@ scripts/
   04_ibestat_population.sh  IBESTAT municipal population (eDatos) + catalog
   05_ngib_subsets.sh        possessions/llogarets/nuclis -> GeoPackages
   06_download_kontur.sh     Kontur 400m population -> data/external/kontur_ES.gpkg
-  07_download_ghsl.sh       GHS-POP 3 arcsec ~90m population -> data/external/ghsl_mallorca.tif
+  07_download_ghsl.sh       GHS-POP 3 arcsec ~90m population -> data/external/ghsl_{mallorca,balears}.tif
 R/
   00_packages.R           package check
   10_relief_mallorca.R    2D hillshade relief + peaks (headless-safe)

@@ -1,5 +1,5 @@
 .PHONY: help explore extract lookups subsets ibestat all \
-        relief density possessions llogarets crossibestat spikes poblacio maps clean
+        relief density possessions llogarets crossibestat spikes poblacio balears maps clean
 
 help:
 	@echo "NGIB — available targets:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make crossibestat  Choropleth possessions/100km² + scatter (NGIB×IBESTAT)"
 	@echo "  make spikes      3D population spike map (warm, Milos style)"
 	@echo "  make poblacio    Blue 3D relief of Mallorca + population as yellow points"
+	@echo "  make balears     Population relief triptych of all the Balearic Islands"
 	@echo "  make maps        all maps"
 	@echo "  make clean       Delete data/ and out/"
 
@@ -70,7 +71,10 @@ spikes: kontur
 poblacio: ghsl
 	Rscript R/61_population_relief.R
 
-maps: density relief possessions classify llogarets crossibestat spikes poblacio
+balears: ghsl
+	Rscript R/62_population_relief_balears.R
+
+maps: density relief possessions classify llogarets crossibestat spikes poblacio balears
 
 clean:
 	rm -rf data/raw data/processed out
